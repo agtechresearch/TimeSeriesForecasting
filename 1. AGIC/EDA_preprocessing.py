@@ -1,4 +1,3 @@
-#%%
 import pandas as pd
 import datetime
 import datetime as dt
@@ -16,20 +15,27 @@ Data load
 
 '''
 # Greenhouse Climate
-gc = pd.read_csv('/home/jy/TimeSeries_Analysis/AGIC/GreenhouseClimate_automato_modified.csv')
+gc = pd.read_csv('/home/jy/dataset/AGIC/GreenhouseClimate_automato_modified.csv')
 
 # Outside Weather
-w = pd.read_csv('/home/jy/TimeSeries_Analysis/AGIC/Weather_modified.csv')
+w = pd.read_csv('/home/jy/dataset/AGIC/Weather_modified.csv')
 
 # Crop Parameter
-cp = pd.read_csv('/home/jy/TimeSeries_Analysis/AGIC/CropParameters_automato_modified__.csv')
+cp = pd.read_csv('/home/jy/dataset/AGIC/CropParameters_automato_modified__.csv')
 
 
 '''
 EDA and Preprocessing
+: 변수 설명
+- gc(greenhouse climate)
+- w(weather)
+- cp(crop parameter)
 
 '''
-#  greenhouse climate에서 _sp, _vip로 끝나는 칼럼은 setpoint이므로 제거한다.
+# column/데이터 요소 선택 
+
+
+# _sp, _vip로 끝나는 변수는 setpoint이므로 제거하였다. 선택된 변수들에 대한 설명은 README 참고
 gc.info()  
 gc = gc[['time', 'CO2air','EC_drain_PC', 'Rhair', 'Tair', 'Tot_PAR', 'pH_drain_PC','water_sup']]
 gc.head()
@@ -43,7 +49,7 @@ cp.head()
 cp = cp.drop(['plant_dens', 'stem_dens '], axis = 1) # 타겟값을 제외하고 모두 제거한다.  
 cp = cp.rename(columns = {'Time':'time'})
 
-# datetime
+# datetime으로 변경
 gc['time'] = pd.to_datetime(gc['time'])
 w['time'] = pd.to_datetime(w['time'])
 cp['time'] = pd.to_datetime(cp['time'])
@@ -53,8 +59,7 @@ w.describe()
 cp.describe()
 
 # merge (greenhouse climate + weather)
-#gcw = pd.merge(gc, w, on='time')
-#gcw.head()
+
 
 '''
 1. visualization
@@ -71,8 +76,12 @@ plt.show()
 2. Missing values
 
 '''
-gc2 = gc.fillna(method = 'ffill')
-gc3 = gc2.fillna(method = 'backfill')
+# gc와 w는 결측치 앞과 뒤의 값으로 채웠다.
+# raw data = gc, w, cp
+# 앞의 값으로 채움 = gc2, w2
+# 뒤의 값으로 채움 = gc3, w3
+gc2 = gc.fillna(method = 'ffill')  #method = 'ffill'은 앞의 값
+gc3 = gc2.fillna(method = 'backfill')  #ethod = 'backfill'은 뒤의 값
 gc3.isnull().sum()
 gc4 = gc3
 
@@ -83,7 +92,7 @@ w3.isnull().sum()
 w4 = w3
 
 
-# missing values -> cp -> 애매하게 채우는 것보단 삭제하는 것이 나을듯
+# missing values -> cp -> 애매하게 채우는 것보단 삭제하는 것이 나을듯(맨마지막 row 5개가 NaN값이라 삭제)
 cp.isnull().sum()
 cp.head(23)
 cp2 = cp.dropna(how = 'any')
@@ -123,23 +132,24 @@ w3.reset_index(drop=True, inplace=True)
 4. Merge
 
 '''
-gcw = pd.merge(gc3, w3, on = 'time', how = 'left')
+
+gcw = pd.merge(gc3, w3, on = 'time', how = 'left') # gcw = gc+w 합침
 gcw['date'] = gcw['time'].dt.date # 공통 column을 만들어준다.
 cp2['date'] = cp2['time'].dt.date
 
-dataset = pd.merge(gcw, cp2, on='date', how = 'outer')
+dataset = pd.merge(gcw, cp2, on='date', how = 'outer') # dataset = gcw+cp2 합침
 dataset = dataset.drop(['date', 'time_y'], axis = 1) # 필요없음
 
-# missing value -> crop_parameter -> 선형으로 비례하는 값들로 결측치를 채움
+# 데이터를 합친 후 row 갯수 차이로 인해 발생한 missing value -> crop_parameter -> 선형으로 비례하는 값들로 결측치를 채움
 dataset['Stem_thick'].interpolate(method = 'linear', limit_direction = 'backward',inplace = True)
 dataset['Cum_trusses'].interpolate(method = 'linear', limit_direction = 'backward',inplace = True)
 dataset.isnull().sum()
 
-dataset2 = dataset.fillna(method = 'ffill')
+dataset2 = dataset.fillna(method = 'ffill') # 'gc3의 갯수 > w3의 갯수'로 인해 발생된 결측치를 채움
 dataset3 = dataset2.fillna(method = 'backfill')
 
 dataset3.isnull().sum()
-a = dataset3['time_x'] # 정규화를 위해 저장
+a = dataset3['time_x'] # 정규화를 위해 저장(정규화시 datetime 칼럼이 사라지는 문제가 있음,,따로 저장 후 정규화를 진행하고 다치 합칠 예정)
 
 
 '''
@@ -153,7 +163,7 @@ dataset3_scaled = scaler.transform(dataset3)
 dataset3_scaled = pd.DataFrame(dataset3_scaled, columns = dataset3.columns)
 dataset3_scaled.info()
 
-dataset4 = pd.merge(a, dataset3_scaled, left_index = True, right_index = True)
+dataset4 = pd.merge(a, dataset3_scaled, left_index = True, right_index = True) # datetime이 사라져 저장해 뒀던 'time_x'를 붙임
 dataset4.info()
 dataset4 = dataset4.rename(columns = {'time_x':'time'})
 dataset4.set_index('time', inplace = True)
@@ -215,6 +225,7 @@ def vif(x):
             output = output.drop(output.columns[a], axis = 1)
             vif = [variance_inflation_factor(output.values, j) for j in range(output.shape[1])]
     return(output)
+
 df = vif(dataset4)
 
 

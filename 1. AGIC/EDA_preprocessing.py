@@ -1,3 +1,4 @@
+#%%
 import pandas as pd
 import datetime
 import datetime as dt
@@ -23,7 +24,7 @@ w = pd.read_csv('/home/jy/dataset/AGIC/Weather_modified.csv')
 # Crop Parameter
 cp = pd.read_csv('/home/jy/dataset/AGIC/CropParameters_automato_modified__.csv')
 
-
+#%%
 '''
 EDA and Preprocessing
 : 변수 설명
@@ -35,7 +36,7 @@ EDA and Preprocessing
 # column/데이터 요소 선택 
 
 
-# _sp, _vip로 끝나는 변수는 setpoint이므로 제거하였다. 선택된 변수들에 대한 설명은 README 참고
+# _sp, _vip로 끝나는 변수는 setpoint이므로 제거하였다. 선택된 변수들에 대한 설명은 가장 하단부분 참고
 gc.info()  
 gc = gc[['time', 'CO2air','EC_drain_PC', 'Rhair', 'Tair', 'Tot_PAR', 'pH_drain_PC','water_sup']]
 gc.head()
@@ -143,6 +144,7 @@ dataset = dataset.drop(['date', 'time_y'], axis = 1) # 필요없음
 # 데이터를 합친 후 row 갯수 차이로 인해 발생한 missing value -> crop_parameter -> 선형으로 비례하는 값들로 결측치를 채움
 dataset['Stem_thick'].interpolate(method = 'linear', limit_direction = 'backward',inplace = True)
 dataset['Cum_trusses'].interpolate(method = 'linear', limit_direction = 'backward',inplace = True)
+dataset['Stem_elong'].interpolate(method = 'linear', limit_direction = 'backward',inplace = True)
 dataset.isnull().sum()
 
 dataset2 = dataset.fillna(method = 'ffill') # 'gc3의 갯수 > w3의 갯수'로 인해 발생된 결측치를 채움
@@ -233,5 +235,22 @@ df = vif(dataset4)
 7. Save
 
 '''
-df.to_csv('df_AGIC_final.csv')
+#df.to_csv('df_AGIC_final.csv')
 
+
+'''
+완성된 데이터 프레임에는 총 11가지의 칼럼이 포함되어있음. 각각의 요소는 다음과 같은 의미를 가짐.
+- CO2air : 온실 내 CO2 농도(ppm)
+- EC_drain_PC : 온실 내 EC 공급량 (dS/m) 
+- Tot_PAR : 온실 내 총 PAR(sun+HPS+LED) (umol/m^2) 
+- pH_drain_PC : 온실 내 pH 공급
+- water_sup : 온실 내 누적 급수
+- T_out : 온실 외부 온도
+- I_glob : 온실 외부 태양 복사(W/m2)
+- RadSum : 온실 외부 복사량(J/cm2)
+- Windsp : 온실 외부 풍속(m/s)
+- Stem_elong : 줄기 생장 (cm/week)
+- Cum_trusses : 줄기 두께(mm)
+
+'''
+# %%

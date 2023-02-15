@@ -1,4 +1,4 @@
 # TimeSeriesForecasting
 
 
-<img src="/home/jy/images/TSF_readme.png" width="500px" height="330px" title="TSF"/>
+![tsf](https://user-images.githubusercontent.com/104062119/218927963-3cddd3ea-f95e-4c47-ae4d-55ec4b356156.png)

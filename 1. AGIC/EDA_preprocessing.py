@@ -252,5 +252,6 @@ df = vif(dataset4)
 - Stem_elong : 줄기 생장 (cm/week)
 - Cum_trusses : 줄기 두께(mm)
 
+=> 전처리된 데이터셋을 기반으로 작물생육변수인 줄기 생장과 줄기 두께를 예측해볼 예정
 '''
 # %%

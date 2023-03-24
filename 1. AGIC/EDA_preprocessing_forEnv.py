@@ -25,7 +25,7 @@ w = pd.read_csv('/home/jy/dataset/AGIC/Weather_modified.csv')
 # Crop Parameter
 # cp = pd.read_csv('/home/jy/dataset/AGIC/CropParameters_automato_modified__.csv')
 
-#%%
+
 '''
 EDA and Preprocessing
 : 변수 설명
@@ -54,7 +54,7 @@ w['time'] = pd.to_datetime(w['time'])
 gc.describe()
 w.describe()
 
-#%%
+
 # merge (greenhouse climate + weather)
 
 
@@ -118,21 +118,21 @@ w3.reset_index(drop=True, inplace=True)
 #b = w3['time'] # 정규화를 위해 저장
 #w3.set_index('time', inplace = True)
 
-#%%
+
 '''
 4. Merge
 
 '''
 
 gcw = pd.merge(gc3, w3, on = 'time', how = 'left') # gcw = gc+w 합침
-#%%
+
 gcw2 = gcw.fillna(method = 'ffill') # 'gc3의 갯수 > w3의 갯수'로 인해 발생된 결측치를 채움
 gcw3 = gcw2.fillna(method = 'backfill')
 
 gcw3.isnull().sum()
 a = gcw3['time'] # 정규화를 위해 저장(정규화시 datetime 칼럼이 사라지는 문제가 있음,,따로 저장 후 정규화를 진행하고 다치 합칠 예정)
 
-#%%
+
 '''
 5. Normalization
 
@@ -150,6 +150,10 @@ gcw4.set_index('time', inplace = True)
 gcw4.head()
 
 
+
+gcw5 = gcw4[['Tair','Rhair', 'CO2air', 'T_out', 'PARout', 'Pyrgeo', 'RadSum', 'Winddir', 'Windsp']]
+gcw5.head()
+#gcw5.to_csv('df_AGIC_final_forEnv_novif.csv') #VIF 처리 한것과 하지 않은것을 비교하기 위함
 #%%
 '''
 6. Variance Inflation Factor(VIF, 다중공선성)

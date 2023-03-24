@@ -106,9 +106,10 @@ RMSE: 0.167135
 MAE: 0.125389
 
 # Stem_elong
-Best Trial: 
-RMSE: 0.218812
-mae: 0.171415
+Best Trial: score 0.004459019750356674,
+params {'learning_rate': 0.0024770135681936555, 'units': 125, 'dropout': 0.0027248635585398616, 'optimizer': 'SGD'}
+RMSE: 0.203587
+MAE: 0.156615
 '''
 
 

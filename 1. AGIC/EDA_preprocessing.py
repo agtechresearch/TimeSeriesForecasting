@@ -1,5 +1,6 @@
 #%%
 import pandas as pd
+import pandas_profiling
 import datetime
 import datetime as dt
 import matplotlib.pyplot as plt
@@ -24,7 +25,8 @@ w = pd.read_csv('/home/jy/dataset/AGIC/Weather_modified.csv')
 # Crop Parameter
 cp = pd.read_csv('/home/jy/dataset/AGIC/CropParameters_automato_modified__.csv')
 
-#%%
+
+
 '''
 EDA and Preprocessing
 : 변수 설명
@@ -59,9 +61,13 @@ gc.describe()
 w.describe()
 cp.describe()
 
+gc.profile_report()
+#w.profile_report()
+#cp.profile_report()
+
 # merge (greenhouse climate + weather)
 
-
+#%%
 '''
 1. visualization
 
@@ -172,7 +178,7 @@ dataset4.set_index('time', inplace = True)
 dataset4.head()
 
 
-
+#%%
 '''
 6. Variance Inflation Factor(VIF, 다중공선성)
 

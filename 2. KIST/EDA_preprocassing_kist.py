@@ -1,5 +1,6 @@
 #%%
 import pandas as pd
+import pandas_profiling
 import datetime
 import datetime as dt
 import matplotlib.pyplot as plt
@@ -20,7 +21,9 @@ df.head() # 1분간격 데이터셋
 df.info()
 df['시간'] = pd.to_datetime(df['시간'])
 
+df.profile_report()
 
+#%%
 '''
 1. visualization
 
@@ -41,7 +44,10 @@ plt.show()
 df2 = df.fillna(method = 'ffill')  #method = 'ffill'은 앞의 값
 df3 = df2.fillna(method = 'backfill')  #ethod = 'backfill'은 뒤의 값
 df3.isnull().sum()
+df3 = df3.drop(['온도'], axis = 1)
+
 df4 = df3
+
 
 
 '''
@@ -75,31 +81,31 @@ df3_scaled.info()
 
 df4 = pd.merge(a, df3_scaled, left_index = True, right_index = True) # datetime이 사라져 저장해 뒀던 'time_x'를 붙임
 df4.info()
-#%%
+
 
 df4 = df4.rename(columns = {'시간':'time'})
 df4 = df4.rename(columns = {'내부온도':'temp'})
 df4 = df4.rename(columns = {'내부습도':'humidity'})
-df4 = df4.rename(columns = {'온도':'temp_out'})
+#df4 = df4.rename(columns = {'온도':'temp_out'})
 df4 = df4.rename(columns = {'엽온':'temp_leaf'})
 df4 = df4.rename(columns = {'증발산량':'evaporation'}) 
 df4 = df4.rename(columns = {'일사량계':'radiation'})
 df4.set_index('time', inplace = True)
-df4.head()
+df4.head()   # VIF 분석시 엽온만 제거되는데, 엽온 예측을 위해 굳이 제거하지 않아도 되지 않을까
 
 
-#%%
+
 '''
 5. Variance Inflation Factor(VIF, 다중공선성)
 
-'''
+
 # visualization
 df4.corr(method = 'pearson')
 sns.heatmap(df4.corr(method = 'pearson'))
 
 # VIF
-a = df4.corr() >= 0.7
-print('=== gc4의 correlation >= 0.7 : ', a.sum(True))
+a = df4.corr() >= 0.8
+print('=== gc4의 correlation >= 0.8 : ', a.sum(True))
 
 # VIF 출력을 위한 데이터 프레임 형성
 vif = pd.DataFrame()
@@ -146,12 +152,14 @@ def vif(x):
 
 df_final = vif(df4)  
 
+'''
 
 '''
 6. Save
 
 '''
 #df_final.to_csv('df_KIST_final.csv')
+
 
 
 '''
@@ -161,4 +169,6 @@ df_final = vif(df4)
 - CO2 : 온실 내부 CO2 농도
 - evaporation : 온실 내부 증발산량
 - radiation : 온실 내부 태양복사
++ temp_leaf : 엽온
 '''
+# %%

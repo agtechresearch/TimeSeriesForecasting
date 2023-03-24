@@ -36,7 +36,7 @@ feature_columns = list(df.columns.difference(['Stem_elong', 'Cum_trusses']))
 X = df[feature_columns]
 y = df['Stem_elong']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.35, random_state = 42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.4, random_state = 42)
 
 # reshape input data
 X_train = np.array(X_train.values, dtype=np.float32)
@@ -175,11 +175,11 @@ rmse = np.sqrt(mean_squared_error(y_test, predictions))
 print("RMSE: %f" % (rmse))  #RMSE: 0.235915
 
 mae = mean_absolute_error(y_test, predictions)
-print('mae: %f' %(mae))  #mae: 0.188903
+print('mae: %f' %(mae))  #mae: 0.189124
 
 from sklearn.metrics import r2_score
 r2 = r2_score(y_test, predictions)
-print('R2: %f' %(r2))  #R2: 0.039779
+print('R2: %f' %(r2))  #R2: 0.039048
 
 
 
